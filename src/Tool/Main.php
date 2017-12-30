@@ -30,7 +30,7 @@ class Main extends PluginBase implements Listener{
 	$this->getLogger()->notice("§b@BEcraft_MCPE");
 	@mkdir($this->getDataFolder());
 	$config = new Config($this->getDataFolder()."Config.yml", Config::YAML, [
-"Twitter" => "GreenNetwork_",
+"Developer" => "StrafelessPvP",
 "Left-Message" => "§7[§c-§7]§c {player}",
 "Join-Message" => "§7[§a+§7]§a {player}",
 "Block-Long-Damage" => false,
