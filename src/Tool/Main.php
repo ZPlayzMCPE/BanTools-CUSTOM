@@ -128,7 +128,7 @@ class Main extends PluginBase implements Listener{
 	public function onCommand(CommandSender $sender, Command $cmd, $label, array $args){
 	switch($cmd){
 	case "invisible":
-	if($sender->isOp()){
+	if($sender->hasPermission("voidminerpe.invisible")){
 		if($sender instanceof Player){
 			$cast = $this->c->get("Left-Message");
 			$cast = str_replace("{player}", $sender->getName(), $cast);
@@ -137,7 +137,7 @@ class Main extends PluginBase implements Listener{
 			foreach($this->getServer()->getOnlinePlayers() as $players){
 				$players->hidePlayer($sender);
 				$sender->setDisplayName("");
-				//$sender->setNameTag("");
+				$sender->setNameTag("");
 				$sender->despawnFromAll();
 				$sender->setAllowFlight(true);
 				$sender->setFlying(true);
@@ -148,7 +148,7 @@ class Main extends PluginBase implements Listener{
 	break;
 	
 	case "visible":
-	if($sender->isOp()){
+	if($sender->hasPermission("voidminerpe.visible")){
 		if($sender instanceof Player){
 			$cast = $this->c->get("Join-Message");
 			$cast = str_replace("{player}", $sender->getName(), $cast);
@@ -157,7 +157,7 @@ class Main extends PluginBase implements Listener{
 			foreach($this->getServer()->getOnlinePlayers() as $players){
 				$players->showPlayer($sender);
 				$sender->spawnToAll();
-				//$sender->setNameTag("§a".$sender->getName());
+				$sender->setNameTag("§a".$sender->getName());
 				$sender->setDisplayName($sender->getName());
 				$sender->setAllowFlight(false);
 				$sender->setFlying(false);
@@ -167,8 +167,8 @@ class Main extends PluginBase implements Listener{
 	return true;
 	break;
 	
-	case "eb":
-	if($sender->isOp()){
+	case "vmban":
+	if($sender->hasPermission("voidminerpe.ban")){
 		if(isset($args[0])){
 			$p = array_shift($args);
 		$player = $sender->getServer()->getPlayer($p);
@@ -200,8 +200,8 @@ $config->save();
 	return true;
 	break;
 	
-	case "ep":
-	if($sender->isOp()){
+	case "vmpardon":
+	if($sender->hasPermission("voidminerpe.pardon")){
 		if(isset($args[0])){
 		$player = $args[0];
 		if(file_exists($this->getDataFolder().$player.".yml")){
@@ -221,14 +221,14 @@ $config->save();
 			//remove file
 			@unlink($this->getDataFolder().$player.".yml");
 			$sender->sendMessage("§ePardon: §a".$player."\n§aCompleted!");
-			}else{$sender->sendMessage("§cSorry this player didnt been banned by this plugin,\n§cuse default command...");}
+			}else{$sender->sendMessage("§cSorry this player hasn't been banned by this plugin,\n§cuse default command...");}
 			}else{$sender->sendMessage("§cuse: /ep <player>");}
 		}else{$sender->sendMessage("§cYou dont have permission to use this command...");}
 		return true;
 		break;
 	
-	case "info":
-	if($sender->isOp()){
+	case "vminfo":
+	if($sender->hasPermission("voidminerpe.info")){
 		if(isset($args[0])){
 			$player = $sender->getServer()->getPlayer($args[0]);
 			if($player instanceof Player){
@@ -248,7 +248,7 @@ $config->save();
 										$op = "false";
 										}
 								$ip = $player->getAddress();
-if($this->getServer()->getName() === "Genisys"){
+if($this->getServer()->getName() === "PocketMine-MP"){
 	$sender->sendMessage(
 								"§7Name: §a".$player->getName()."\n".
 								"§7Health: §a".$health."\n".
@@ -266,14 +266,14 @@ if($this->getServer()->getName() === "Genisys"){
 								"§7Address: §a".$ip
 );
 		}
-				}else{$sender->sendMessage("§cNo player found");}
-			}else{$sender->sendMessage("§cuse: /info <player>");}
+				}else{$sender->sendMessage("§2Cannot find player.");}
+			}else{$sender->sendMessage("§7Please use: §e/info <player>");}
 		}else{$sender->sendMessage("§cYou dont have permission to use this command...");}
 		return true;
 		break;
 		
-	case "fre":
-	if($sender->isOp()){
+	case "vmfreeze":
+	if($sender->hasPermission("voidminerpe.freeze")){
 		if(isset($args[0])){
 			$player = $sender->getServer()->getPlayer($args[0]);
 			if($player instanceof Player){
@@ -293,23 +293,23 @@ if($this->getServer()->getName() === "Genisys"){
 		break;
 		
 	case "co":
-	if($sender->isOp()){
+	if($sender->hasPermission("voidminerpe.adminchat"()){
 		if($sender instanceof Player){
 		if(!in_array($sender->getName(), $this->chat)){
-			$sender->sendMessage("§aYou joined to OP-CHAT!");
+			$sender->sendMessage("§aYou've joined §4The Admin chat!");
 			$this->chat[$sender->getName()] = $sender->getName();
 			foreach($this->getServer()->getOnlinePlayers() as $players){
 				if(in_array($players->getName(), $this->chat)){
-					$players->sendMessage("§a".$sender->getName()." joined to the chat!");
+					$players->sendMessage("§a".$sender->getName()." §bjoined the Admin-chat!");
 					}
 				}
 			}else{
 				foreach($this->getServer()->getOnlinePlayers() as $players){
 				if(in_array($players->getName(), $this->chat)){
-					$players->sendMessage("§c".$sender->getName()." left to the chat!");
+					$players->sendMessage("§4".$sender->getName()." §cleft the Admin-chat!");
 					}
 				}
-				$sender->sendMessage("§cYou left from OP-CHAT!");
+				$sender->sendMessage("§cYou left the Admin-CHAT!");
 				unset($this->chat[$sender->getName()]);
 				}
 				}else{$sender->sendMessage("§cRun only in game!");}
@@ -319,13 +319,24 @@ if($this->getServer()->getName() === "Genisys"){
 	
 	case "tools":
 	if($sender->isOp()){
-		$sender->sendMessage("§7-=]§6Ban§eTools§7[=-\n§6/visible §7[§aMake you visible to other players!§7]\n§6/invisible §7[§aBe like a ghost!§7]\n§6/eb [player] [reason] §7[§aBan any player from this server!§7]\n§6/ep [player] §7[§aPardon any player which is banned!§7]\n§6/co §7[§aJoin and Left from OP-CHAT!§7]\n§6/fre §7[§aFreeze and Unfreeze any player!§7]\n§6/info [player] §7[§aCheck any player information§7]\n§6/tools §7[§aCheck all commands§7]\n§6/bancheck <name> §7[§aCheck banned players information§7]\n§eAuthor: §b@BEcraft_MCPE");
-		}else{$sender->sendMessage("§cYou dont have permission to use this command...");}
+		$sender->sendMessage("§6Void§bMiner§cPE §dTools §eHelp§7[§21§6/§21]");
+		$sender->sendMessage("§b/visible - §aMake you visible to other players!");
+		$sender->sendMessage("§b/invisible - §a[§aBe like a ghost!");
+		$sender->sendMessage("§b/vmban [player] [reason] - §aBan any player from this server!");
+		$sender->sendMessage("§b/vmpardon [player] - §aPardon any player which is banned!");
+		$sender->sendMessage("§b/adminchat §aJoin / Leave the Admin chat");
+		$sender->sendMessage("§b/vmfreeze - §aFreeze and Unfreeze any player");
+		$sender->sendMessage("§b/vminfo [player] §aCheck any player's information");
+		$sender->sendMessage("§b/tools - §aCheck all commands");
+		$sender->sendMessage("§b/bancheck <name> - §aCheck banned players information");
+		$sender->sendMessage("§eAuthor: §bYoTils123");
+		$sender->sendMessage("§dThis plugin is based from The Void Network.");
+		}else{$sender->sendMessage("§cYou dont have permission to use this command");}
 		return true;
 		break;
 	
 	case "bancheck":
-	if($sender->isOp()){
+	if($sender->hasPermission("voidminerpe.bancheck")){
 		if(isset($args[0])){
 		$banned = $args[0];
 		if(file_exists($this->getDataFolder().$banned.".yml")){
