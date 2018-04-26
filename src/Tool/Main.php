@@ -25,12 +25,12 @@ class Main extends PluginBase implements Listener{
 	public $freeze = array();
 	public $chat = array();
 	
-	public function onEnable(){
+	public function onEnable(): void{
 	$this->getServer()->getPluginManager()->registerEvents($this, $this);
 	$this->getLogger()->notice("§b@BEcraft_MCPE");
 	@mkdir($this->getDataFolder());
 	$config = new Config($this->getDataFolder()."Config.yml", Config::YAML, [
-"Developer" => "StrafelessPvP",
+"Developer" => "StrafelessPvP, edited by VMPE Development Team.",
 "Left-Message" => "§7[§c-§7]§c {player}",
 "Join-Message" => "§7[§a+§7]§a {player}",
 "Block-Long-Damage" => false,
@@ -46,7 +46,7 @@ class Main extends PluginBase implements Listener{
 		if(in_array($e->getPlayer()->getName(), $this->freeze)){
 			unset($this->freeze[$e->getPlayer()->getName()]);
 			$config = new Config($this->getDataFolder().$e->getPlayer()->getName().".yml", Config::YAML);
-			$reason = "You left the game while you was freezed";
+			$reason = "You left the game while you are currently frozen";
             $config->set("Datos", array($e->getPlayer()->getName(), $e->getPlayer()->getClientId(), $e->getPlayer()->getAddress(), $reason));
             $config->save();
 			$this->getServer()->getNameBans()->addBan($e->getPlayer()->getName(), $reason, null, null);
@@ -79,7 +79,7 @@ class Main extends PluginBase implements Listener{
 			$to->yaw = $e->getTo()->yaw;
 			$to->pitch = $e->getTo()->pitch;
 			$e->setTo($to);
-			$p->sendPopup("§cYou cant move!");
+			$p->sendPopup("§cYou cant move! You are frozen.");
 			}
 		}
 		
@@ -88,7 +88,7 @@ class Main extends PluginBase implements Listener{
 		if(in_array($player->getName(), $this->chat)){
 			foreach($this->getServer()->getOnlinePlayers() as $players){
 				if(in_array($players->getName(), $this->chat)){
-					$players->sendMessage("§7[§6OP§7-§bCHAT§7] §e".$player->getName()." §7|| §a".$event->getMessage());
+					$players->sendMessage("§7[§4Admin-§cChat§7] §d".$player->getName()." §7> §b".$event->getMessage());
 					$event->setCancelled(true);
 					}
 				}
@@ -113,11 +113,11 @@ class Main extends PluginBase implements Listener{
     }
     }
     if((in_array($entity->getName(), $this->freeze)) and (!in_array($damager->getName(), $this->freeze))){
-    	$damager->sendMessage("§cWarning: §7You cant hit this player!");
+    	$damager->sendMessage("§cWarning: §2You cant hit this player!");
     $e->setCancelled(true);
     }
     	if((!in_array($entity->getName(), $this->freeze)) and (in_array($damager->getName(), $this->freeze))){
-    $damager->sendMessage("§cWarning: §7You cant hit this player!");
+    $damager->sendMessage("§cWarning: §2You cant hit this player!");
     $e->setCancelled(true);
     }
     
@@ -125,7 +125,7 @@ class Main extends PluginBase implements Listener{
     }
     }
     
-	public function onCommand(CommandSender $sender, Command $cmd, $label, array $args){
+	public function onCommand(CommandSender $sender, Command $cmd, string $label, array $args): bool{
 	switch($cmd){
 	case "invisible":
 	if($sender->hasPermission("voidminerpe.invisible")){
@@ -133,7 +133,7 @@ class Main extends PluginBase implements Listener{
 			$cast = $this->c->get("Left-Message");
 			$cast = str_replace("{player}", $sender->getName(), $cast);
 			$this->getServer()->broadcastMessage($cast);
-			$sender->sendMessage("§eSpy§6Mode §aEnabled");
+			$sender->sendMessage("§a§lVanish has been §denabled.");
 			foreach($this->getServer()->getOnlinePlayers() as $players){
 				$players->hidePlayer($sender);
 				$sender->setDisplayName("");
@@ -142,8 +142,8 @@ class Main extends PluginBase implements Listener{
 				$sender->setAllowFlight(true);
 				$sender->setFlying(true);
 				}
-			}else{$sender->sendMessage("§cRun on game...");}
-	}else{$sender->sendMessage("§cYou dont have permission to use this command...");}
+			}else{$sender->sendMessage("§cPlease use this command IN GAME.");}
+	}else{$sender->sendMessage("§cYou do not have permissions to use this command.");}
 	return true;
 	break;
 	
@@ -153,7 +153,7 @@ class Main extends PluginBase implements Listener{
 			$cast = $this->c->get("Join-Message");
 			$cast = str_replace("{player}", $sender->getName(), $cast);
 			$this->getServer()->broadcastMessage($cast);
-			$sender->sendMessage("§eSpy§6Mode §cDisabled");
+			$sender->sendMessage("§aVanish has been §cdisabled.");
 			foreach($this->getServer()->getOnlinePlayers() as $players){
 				$players->showPlayer($sender);
 				$sender->spawnToAll();
@@ -191,16 +191,18 @@ $config->save();
 		}
 		$sender->getServer()->getIPBans()->addBan($player->getAddress(), $reason, null, $sender->getName());
 		$sender->getServer()->getNetwork()->blockAddress($player->getAddress(), -1);
-		$this->getServer()->broadcastMessage("§a".$player->getName()." §7has been banned, reason: §6".$reason);
+		$this->getServer()->broadcastMessage("§d".$player->getName()." §bhas been banned, reason: §e".$reason);
 	    $player->kick("§7[§ax§7]§cYou have been banned§7[§ax§7] \n§6Banned by: §e{$sender->getName()}\n§6Reason: §e{$reason}\n§7If you think this ban is incorrect or\nyou have any question please contact us\nat §b@{$this->c->get("Twitter")} §7thanks for play!", false);
 		}else{$sender->sendMessage("§cNot player found...");}
-		//}else{$sender->sendMessage("§cuse: /eb <player> <reason>");}
-		}else{$sender->sendMessage("§cuse: /eb <player> <reason>");}
-	}else{$sender->sendMessage("§cYou dont have permission to use this command...");}
+		//}else{$sender->sendMessage("§cuse: /vmban <player> <reason>");}
+		}else{$sender->sendMessage("§7Please use: §e/vmban <player> <reason>");}
+	}else{$sender->sendMessage("§cYou do not have permission to use this command.");}
 	return true;
 	break;
 	
 	case "vmpardon":
+	case "vmunban":
+	case "vmub":
 	if($sender->hasPermission("voidminerpe.pardon")){
 		if(isset($args[0])){
 		$player = $args[0];
@@ -210,20 +212,20 @@ $config->save();
 			/*pardon name*/
 			$sender->getServer()->getNameBans()->remove($datos[0]);
 			/*pardon ip*/
-			if($this->getServer()->getName() === "Genisys"){
+			if($this->getServer()->getName() === "PocketMine-MP"){
 			$sender->getServer()->getNetwork()->unblockAddress($datos[2]);
 			}
 			$sender->getServer()->getIPBans()->remove($datos[2]);
 			/*pardon cid*/
-			if($this->getServer()->getName() === "Genisys"){
+			if($this->getServer()->getName() === "PocketMine-MP"){
 			$sender->getServer()->getCIDBans()->remove($datos[1]);
 			}
 			//remove file
 			@unlink($this->getDataFolder().$player.".yml");
 			$sender->sendMessage("§ePardon: §a".$player."\n§aCompleted!");
-			}else{$sender->sendMessage("§cSorry this player hasn't been banned by this plugin,\n§cuse default command...");}
-			}else{$sender->sendMessage("§cuse: /ep <player>");}
-		}else{$sender->sendMessage("§cYou dont have permission to use this command...");}
+			}else{$sender->sendMessage("§cThis player hasn't been banned by this plugin.");}
+			}else{$sender->sendMessage("§7Please use: §e/vmpardon <player>");}
+		}else{$sender->sendMessage("§cYou dont have permission to use this command.");}
 		return true;
 		break;
 	
@@ -250,24 +252,24 @@ $config->save();
 								$ip = $player->getAddress();
 if($this->getServer()->getName() === "PocketMine-MP"){
 	$sender->sendMessage(
-								"§7Name: §a".$player->getName()."\n".
-								"§7Health: §a".$health."\n".
-								"§7Gamemode: §a".$game."\n".
-								"§7OP: §a".$op."\n".
-								"§7Address: §a".$ip."\n".
-								"§7ClientID: §a".$player->getClientId()
+								"§dName: §5".$player->getName()."\n".
+								"§dHealth: §5".$health."\n".
+								"§dGamemode: §5".$game."\n".
+								"§dOP: §5".$op."\n".
+								"§dAddress: §5".$ip."\n".
+								"§dClientID: §5".$player->getClientId()
 );
 	}else{
 		$sender->sendMessage(
-								"§7Name: §a".$player->getName()."\n".
-								"§7Health: §a".$health."\n".
-								"§7Gamemode: §a".$game."\n".
-								"§7OP: §a".$op."\n".
-								"§7Address: §a".$ip
+								"§dName: §5".$player->getName()."\n".
+								"§dHealth: §5".$health."\n".
+								"§dGamemode: §5".$game."\n".
+								"§dOP: §5".$op."\n".
+								"§dAddress: §5".$ip
 );
 		}
-				}else{$sender->sendMessage("§2Cannot find player.");}
-			}else{$sender->sendMessage("§7Please use: §e/info <player>");}
+				}else{$sender->sendMessage("§cCannot find player.");}
+			}else{$sender->sendMessage("§7Please use: §e/vminfo <player>");}
 		}else{$sender->sendMessage("§cYou dont have permission to use this command...");}
 		return true;
 		break;
@@ -278,22 +280,22 @@ if($this->getServer()->getName() === "PocketMine-MP"){
 			$player = $sender->getServer()->getPlayer($args[0]);
 			if($player instanceof Player){
 				if(!in_array($player->getName(), $this->freeze)){
-					$sender->sendMessage("§e".$player->getName()." §ahas been freezed!");
-					$player->sendMessage("§cYou have been freezed, please dont log out!");
+					$sender->sendMessage("§e".$player->getName()." §ahas been frozen!");
+					$player->sendMessage("§cYou have been frozen, please dont log out!");
 					$this->freeze[$player->getName()] = $player->getName();
 					}else{
-						$sender->sendMessage("§e".$player->getName()." §ahas been unfreezed");
-						$player->sendMessage("§aYou can move right now");
+						$sender->sendMessage("§e".$player->getName()." §ahas been unfrozen");
+						$player->sendMessage("§aYou can now move.");
 						unset($this->freeze[$player->getName()]);
 						}
-				}else{$sender->sendMessage("§cNo player found");}
-			}else{$sender->sendMessage("§cuse /fre [player]");}
-		}else{$sender->sendMessage("§cYou dont have permission to use this command...");}
+				}else{$sender->sendMessage("§cCannot find player.");}
+			}else{$sender->sendMessage("§7Please use: §e/vmfreeze [player]");}
+		}else{$sender->sendMessage("§cYou dont have permission to use this command.");}
 		return true;
 		break;
 		
 	case "co":
-	if($sender->hasPermission("voidminerpe.adminchat"()){
+	if($sender->hasPermission("voidminerpe.adminchat")){
 		if($sender instanceof Player){
 		if(!in_array($sender->getName(), $this->chat)){
 			$sender->sendMessage("§aYou've joined §4The Admin chat!");
@@ -309,10 +311,10 @@ if($this->getServer()->getName() === "PocketMine-MP"){
 					$players->sendMessage("§4".$sender->getName()." §cleft the Admin-chat!");
 					}
 				}
-				$sender->sendMessage("§cYou left the Admin-CHAT!");
+				$sender->sendMessage("§cYou left the §4Admin-Chat!");
 				unset($this->chat[$sender->getName()]);
 				}
-				}else{$sender->sendMessage("§cRun only in game!");}
+				}else{$sender->sendMessage("§cPlease use this command in game.");}
 		}else{$sender->sendMessage("§cYou dont have permission to use this command...");}
 		return true;
 		break;
@@ -342,26 +344,30 @@ if($this->getServer()->getName() === "PocketMine-MP"){
 		if(file_exists($this->getDataFolder().$banned.".yml")){
 			$config = new Config($this->getDataFolder().$banned.".yml", Config::YAML);
 			$datos = $config->get("Datos");
-			$sender->sendMessage("§7-=] §e".$banned."'s §6ban info §7[=-\n§7Address: §6".$datos[2]."\n§7Client ID: §6".$datos[1]."\n§7Reason: §c".$datos[3]);
-			}else{$sender->sendMessage("§cthere is not any player banned with name §a".$banned."§ccheck at next time!");}
-			}else{$sender->sendMessage("§cuse /bancheck <name>");}
-		}else{$sender->sendMessage("§cYou dont have permission to use this command...");}
+			$sender->sendMessage("§6Void§bMiner§cPE §dBan Check");
+			$sender->sendMessage("§5".$banned."'s §dban info");
+			$sender->sendMessage("§dAddress: §5".$datos[2]);
+			$sender->sendMessage("§dClient ID: §5".$datos[1]);
+			$sender->sendMessage("§dReason: §5".$datos[3]);
+			}else{$sender->sendMessage("§cThere is no players banned with name §a".$banned."§ccheck to see if the name is correct.!");}
+			}else{$sender->sendMessage("§7Please use: §e/bancheck <name>");}
+		}else{$sender->sendMessage("§cYou dont have permission to use this command.");
 	return true;
 	break;
 	
 	}
 	}
-  
+	}
     public function onBanned(PlayerPreLoginEvent $event){
     $player = $event->getPlayer();
     if($player->isBanned()){
     if(file_exists($this->getDataFolder().$player->getName().".yml")){
     $config = new Config($this->getDataFolder().$player->getName().".yml", Config::YAML);
     $datos = $config->get("Datos");
-    $event->setKickMessage("§cSorry §a".$player->getName()."§c You are banned from this server...\n§eName: §7".$datos[0]."\n§eReason: §7".$datos[3]);
+    $event->setKickMessage("§cSorry §a".$player->getName()." §aYou are banned from this server\n§dName: §5".$datos[0]."\n§dReason: §5".$datos[3]);
     $event->setCancelled(true);
     }else{
-    $event->setKickMessage("§cSorry §a".$player->getName()."§c You are banned from this server...");
+    $event->setKickMessage("§cSorry ".$player->getName()." §cYou are banned from the Void Network.");
     $event->setCancelled(true);
     }
     }
